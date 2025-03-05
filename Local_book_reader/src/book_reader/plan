@@ -1,0 +1,318 @@
+LOCAL BOOK READER
+
+1. Project Architecture Definition
+The project should include the following components:
+•	Classes for book objects:
+o	Book class to represent a book (title, author, description, genre, number of pages, comments).
+o	Comment class to store book comments.
+o	Reader class to represent a reader (name, password, email, list of books read or abandoned, list of books being read, bookmark - page number).
+•	Library:
+o	Library class for managing all books and searching by author/genre.
+•	Graphical User Interface (GUI):
+o	Windows for registration, login, book list display, and detailed book view.
+o	A submenu for book interactions (discard, mark as read, replace book).
+•	Threads:
+o	Each reader operates in their own thread (registration and login via multithreading).
+2. Classes and Their Interaction
+2.1. Book Class
+public class Book {
+    private String title;
+    private String author;
+    private String genre;
+    private String description;
+    private int totalPages;
+    private int currentPage;
+    private List<String> comments;
+
+    // Constructor and methods to work with the book
+    public Book(String title, String author, String genre, String description, int totalPages) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.description = description;
+        this.totalPages = totalPages;
+        this.comments = new ArrayList<>();
+        this.currentPage = 1; // Start from the first page
+    }
+
+    // Methods to add comments, navigate between pages, etc.
+}
+2.2. Comment Class
+public class Comment {
+    private String text;
+    private LocalDate date;
+
+    // Constructor and methods to work with comments
+    public Comment(String text) {
+        this.text = text;
+        this.date = LocalDate.now();
+    }
+}
+2.3. Reader Class
+public class Reader {
+    private String name;
+    private String password;
+    private String email;
+    private List<Book> readBooks; // Books that have been read
+    private List<Book> readingBooks; // Books currently being read
+    private Map<Book, Integer> bookmarks; // Bookmarks for each book
+
+    // Constructor and methods to work with the reader
+}
+2.4. Library Class
+public class Library {
+    private List<Book> books;
+
+    // Constructor and methods for searching books by author or genre
+    public List<Book> searchByAuthor(String author) {
+        return books.stream().filter(book -> book.getAuthor().equals(author)).collect(Collectors.toList());
+    }
+
+    public List<Book> searchByGenre(String genre) {
+        return books.stream().filter(book -> book.getGenre().equals(genre)).collect(Collectors.toList());
+    }
+}
+3. Graphical User Interface (GUI)
+For the GUI, we will use JavaFX or Swing.
+3.1. Main Windows
+1.	Registration Window:
+o	Fields: name, email, password.
+o	Button "Register" that saves the user's data.
+2.	Login Window:
+o	Fields: email, password.
+o	Button "Login" that checks the credentials and authenticates the user.
+3.	Book Search Window:
+o	Fields: search by author, genre.
+o	Book list with the ability to select a book to view.
+4.	Book Viewing Window:
+o	Display the first page of the book (with author, title, description).
+o	Buttons for navigating pages (forward/backward).
+o	Submenu with options: discard book, mark as read, replace book, return to search.
+5.	Comments Window:
+o	A field to input comments after finishing reading a book.
+6.	Bookmarks Window:
+o	Display current bookmarks for each book.
+3.2. JavaFX Interface Example (brief example)
+public class MainWindow extends Application {
+    @Override
+    public void start(Stage primaryStage) {
+        // Book search panel
+        TextField authorField = new TextField();
+        Button searchButton = new Button("Search");
+
+        // Book list
+        ListView<Book> bookListView = new ListView<>();
+        searchButton.setOnAction(event -> {
+            // Search by author
+            List<Book> books = library.searchByAuthor(authorField.getText());
+            bookListView.getItems().setAll(books);
+        });
+
+        // Display books
+        VBox root = new VBox();
+        root.getChildren().addAll(authorField, searchButton, bookListView);
+        Scene scene = new Scene(root, 400, 400);
+        primaryStage.setTitle("Library");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+4. Threading
+Each reader works in their own thread:
+•	Use multithreading in Java with ExecutorService or by creating separate threads for registration and login.
+•	After login, each reader will have access to their own information in a separate thread, preventing blocking other operations.
+Example of multithreading:
+ExecutorService executor = Executors.newFixedThreadPool(10);
+
+executor.submit(() -> {
+    // Registration or login logic
+});
+
+executor.shutdown();
+5. Database and Data Storage
+To store information about books and users, you can use text files (txt), as mentioned in the task, or a database (e.g., SQLite) to simplify data storage and retrieval.
+Example for reading a book file:
+public Book loadBookFromFile(String fileName) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+        String title = reader.readLine();
+        String author = reader.readLine();
+        // Other data
+        return new Book(title, author, genre, description, totalPages);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+6. Conclusion
+During the implementation of the project, focus on:
+•	The design of the user interface to make it intuitive for the user.
+•	Working with threads to ensure parallel operation of readers.
+•	Testing the interaction between different parts of the system.
+This project will require significant effort to integrate all the components, but it’s a great way to demonstrate skills with Java and GUI development.
+
+
+
+
+
+RUS
+
+LOCAL BOOK READER
+
+Проект на Java с графическим интерфейсом (GUI), который реализует библиотеку, где каждая книга — это объект с текстовыми файлами, может быть разделен на несколько этапов. Вот план разработки:
+1. Определение архитектуры проекта
+Проект должен включать следующие компоненты:
+•	Классы для объектов книг:
+o	Класс Book для представления книги (название, автор, описание, жанр, количество страниц, комментарии).
+o	Класс Comment для хранения комментариев к книге.
+o	Класс Reader для представления читателя (имя, пароль, email, список прочитанных и читаемых книг, закладки).
+•	Библиотека:
+o	Класс Library для управления всеми книгами и поиском по автору/жанру.
+•	Графический интерфейс:
+o	Окна для регистрации, входа в систему, отображения списка книг, подробного вида книги.
+o	Подменю для работы с книгами (сбросить книгу, отметить как прочитанную, заменить книгу).
+•	Потоки:
+o	Каждый читатель работает в своем потоке (регистрация и вход через многозадачность).
+2. Классы и их взаимодействие
+2.1. Класс Book
+public class Book {
+    private String title;
+    private String author;
+    private String genre;
+    private String description;
+    private int totalPages;
+    private int currentPage;
+    private List<String> comments;
+
+    // Конструктор и методы для работы с книгой
+    public Book(String title, String author, String genre, String description, int totalPages) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.description = description;
+        this.totalPages = totalPages;
+        this.comments = new ArrayList<>();
+        this.currentPage = 1; // Начинаем с первой страницы
+    }
+
+    // Методы для добавления комментариев, перехода между страницами и другие
+}
+2.2. Класс Comment
+public class Comment {
+    private String text;
+    private LocalDate date;
+
+    // Конструктор и методы для работы с комментариями
+    public Comment(String text) {
+        this.text = text;
+        this.date = LocalDate.now();
+    }
+}
+2.3. Класс Reader
+public class Reader {
+    private String name;
+    private String password;
+    private String email;
+    private List<Book> readBooks; // Прочитанные книги
+    private List<Book> readingBooks; // Книги в процессе чтения
+    private Map<Book, Integer> bookmarks; // Закладки для каждой книги
+
+    // Конструктор и методы для работы с читателем
+}
+2.4. Класс Library
+public class Library {
+    private List<Book> books;
+
+    // Конструктор и методы для поиска книг по автору или жанру
+    public List<Book> searchByAuthor(String author) {
+        return books.stream().filter(book -> book.getAuthor().equals(author)).collect(Collectors.toList());
+    }
+
+    public List<Book> searchByGenre(String genre) {
+        return books.stream().filter(book -> book.getGenre().equals(genre)).collect(Collectors.toList());
+    }
+}
+3. Графический интерфейс (GUI)
+Для создания интерфейса используем JavaFX или Swing.
+3.1. Основные окна
+1.	Окно регистрации:
+o	Поля: имя, email, пароль.
+o	Кнопка "Зарегистрироваться", которая сохраняет данные о пользователе.
+2.	Окно входа:
+o	Поля: email, пароль.
+o	Кнопка "Войти", которая проверяет учетные данные и авторизует пользователя.
+3.	Окно поиска книг:
+o	Поля: поиск по автору, жанру.
+o	Список книг с возможностью выбрать книгу для просмотра.
+4.	Окно просмотра книги:
+o	Отображение первой страницы книги (с автором, названием, описанием).
+o	Кнопки для навигации по страницам (вперед/назад).
+o	Подменю с вариантами: сбросить книгу, отметить как прочитанную, сменить книгу, вернуть к поиску.
+5.	Окно комментариев:
+o	Поле для ввода комментариев после завершения чтения книги.
+6.	Окно закладок:
+o	Просмотр текущей закладки для каждой книги.
+3.2. Пример реализации интерфейса на JavaFX (краткий пример)
+public class MainWindow extends Application {
+    @Override
+    public void start(Stage primaryStage) {
+        // Панель поиска книг
+        TextField authorField = new TextField();
+        Button searchButton = new Button("Поиск");
+
+        // Список книг
+        ListView<Book> bookListView = new ListView<>();
+        searchButton.setOnAction(event -> {
+            // Поиск по автору
+            List<Book> books = library.searchByAuthor(authorField.getText());
+            bookListView.getItems().setAll(books);
+        });
+
+        // Отображение книг
+        VBox root = new VBox();
+        root.getChildren().addAll(authorField, searchButton, bookListView);
+        Scene scene = new Scene(root, 400, 400);
+        primaryStage.setTitle("Библиотека");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+4. Работа с потоками
+Каждый читатель работает в своем потоке:
+•	Использование многозадачности в Java с помощью ExecutorService или создания отдельных потоков для регистрации и входа в систему.
+•	После входа, каждый читатель имеет доступ к своей информации в отдельном потоке, чтобы не блокировать другие операции.
+Пример многозадачности:
+ExecutorService executor = Executors.newFixedThreadPool(10);
+
+executor.submit(() -> {
+    // Логика регистрации или входа в систему
+});
+
+executor.shutdown();
+5. База данных и сохранение данных
+Для хранения информации о книгах и пользователях можно использовать текстовые файлы (txt), как указано в задании, или базу данных (например, SQLite), чтобы упростить хранение данных и их извлечение.
+Пример для чтения файла книги:
+public Book loadBookFromFile(String fileName) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+        String title = reader.readLine();
+        String author = reader.readLine();
+        // Остальные данные
+        return new Book(title, author, genre, description, totalPages);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+6. Заключение
+В ходе реализации проекта важно сосредоточиться на:
+•	Дизайне интерфейса, который будет интуитивно понятен пользователю.
+•	Работе с потоками для обеспечения параллельной работы читателей.
+•	Тестировании взаимодействия между различными частями системы.
+Проект потребует значительных усилий для интеграции всех компонентов, но это хороший способ продемонстрировать навыки работы с Java и GUI.
+
+
